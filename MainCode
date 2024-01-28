@@ -1,0 +1,387 @@
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        TabView {
+            HomeTab()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+            
+            ProfileTab()
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+            
+            InsuranceTab()
+                .tabItem {
+                    Label("My Insurance", systemImage: "briefcase.fill")
+                }
+            
+            HistoryTab()
+                .tabItem {
+                    Label("History", systemImage: "clock.fill")
+                }
+        }
+        .accentColor(.green)
+    }
+}
+
+struct HomeTab: View {
+    var body: some View {
+        NavigationView {
+            HomeView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct ProfileTab: View {
+    var body: some View {
+        NavigationView {
+            ProfileView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct InsuranceTab: View {
+    var body: some View {
+        NavigationView {
+            MyInsuranceView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct HistoryTab: View {
+    var body: some View {
+        NavigationView {
+            HistoryView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+
+
+struct HomeView: View {
+    let photos = ["photo", "photo2", "photo3", "photo4", "Photo5", "photo6"]
+    
+    let newsItems = [
+        "#HalykLife", "#Insurance", "#Safe", "#Invest", "#Future", "#Health", "#Family", "#Security"
+    ]
+    
+    let insuranceTypes = ["Выбрать Страховку"]
+    
+    @State private var scrollOffset = CGFloat.zero
+    @State private var isScrolling = false
+    @State private var selectedInsurance: String? = nil
+
+    func totalContentWidth(geometry: GeometryProxy) -> CGFloat {
+        let itemCount = CGFloat(newsItems.count)
+        let itemWidth = geometry.size.width * 0.8
+        return itemCount * itemWidth
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    GeometryReader { geometry in
+                        HStack(spacing: 10) {
+                            ForEach(0..<newsItems.count * 100, id: \.self) { index in
+                                Text(self.newsItems[index % self.newsItems.count])
+                                    .padding()
+                                    .frame(width: geometry.size.width * 0.8, height: 50)
+                                    .background(Color.yellow)
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .offset(x: self.scrollOffset)
+                        .onAppear {
+                            withAnimation(Animation.linear(duration: 60).repeatForever(autoreverses: false)) {
+                                self.scrollOffset = -self.totalContentWidth(geometry: geometry)
+                            }
+                        }
+                    }
+                    .frame(height: 70)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            ForEach(photos, id: \.self) { photo in
+                                Image(photo)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 200, height: 150)
+                                    .clipped()
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(height: 150)
+                    
+                    Image("products")
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+
+                    ForEach(insuranceTypes, id: \.self) { type in
+                        NavigationLink(destination: QuizView(), tag: type, selection: $selectedInsurance) {
+                            Button(action: {
+                                self.selectedInsurance = type
+                            }) {
+                                Text(type)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                    .padding(.horizontal)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle("Home", displayMode: .inline)
+            .background(Color.white.edgesIgnoringSafeArea(.all))
+        }
+    }
+}
+
+
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+    }
+}
+
+
+
+struct ProfileView: View {
+    var body: some View {
+        Text("Profile Content Here")
+            .font(.largeTitle)
+            .padding()
+            .navigationBarTitle("Profile", displayMode: .inline)
+    }
+}
+
+struct MyInsuranceView: View {
+    var body: some View {
+        Text("My Insurance Content Here") //
+            .font(.largeTitle)
+            .padding()
+            .navigationBarTitle("My Insurance", displayMode: .inline)
+    }
+}
+
+
+struct HistoryView: View {
+    var body: some View {
+        Text("History Content Here")
+            .font(.largeTitle)
+            .padding()
+            .navigationBarTitle("History", displayMode: .inline)
+    }
+}
+
+
+struct QuizView: View {
+    @State private var name: String = ""
+    @State private var phoneNumber: String = ""
+    @State private var gender: String = ""
+    @State private var age: String = ""
+    @State private var specificRisks: String = ""
+    @State private var budget: String = ""
+    @State private var familyStatus: String = ""
+    @State private var profession: String = ""
+    @State private var chronicDiseases: String = ""
+    @State private var contributionType: String = ""
+    @State private var additionalBonuses: String = ""
+    @State private var insuranceTerm: String = ""
+    @State private var insuranceRequirements: String = ""
+    @State private var showingResult = false
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Как вас зовут?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Имя", text: $name)
+                }
+                Section(header: Text("Номер Телефона").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("номер", text: $phoneNumber)
+                }
+                Section(header: Text("Ваш пол").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    Picker("Gender", selection: $gender) {
+                        Text("Мужчина").tag("Male")
+                        Text("Женщина").tag("Female")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                Section(header: Text("Сколько вам лет? ").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Возрост", text: $age)
+                }
+                Section(header: Text("Какие конкретные риски или события вы хотели бы застраховать? (например, жизнь, здоровье, несчастные случаи и т.д.) ?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Напишите", text: $specificRisks)
+                }
+                Section(header: Text("Какой бюджет вы готовы выделить на страховку?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Бюджет", text: $budget)
+                }
+                Section(header: Text("Вы одиноки или у вас есть семья (супруг(а), дети)?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    Picker("Социальный статус", selection: $familyStatus) {
+                        Text("Женат, есть дети").tag("Married, no children")
+                        Text("Женат, нет детей").tag("Married with children")
+                        Text("Не женать, нет детей").tag("Not married, have children")
+                        Text("Одинока").tag("Single")
+                    }
+                }
+                Section(header: Text("Какова ваша профессия и область деятельности?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Профессия", text: $profession)
+                }
+                Section(header: Text("Есть ли у вас какие-либо хронические заболевания или состояния здоровья?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Напишите", text: $chronicDiseases)
+                }
+                Section(header: Text("Желаете ли вы ежемесячные взносы или предпочитаете единовременную оплату?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    Picker("Contribution Type", selection: $contributionType) {
+                        Text("Ежемесячно").tag("Monthly")
+                        Text("Единовременно").tag("Lump sum")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                Section(header: Text("Как вы относитесь к дополнительным бонусам или возможностям, таким как скидки, кэшбэк и прочее? ").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Допольнительно", text: $additionalBonuses)
+                }
+                Section(header: Text("На какой срок вы хотели бы оформить страховку?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Напишите", text: $insuranceTerm)
+                }
+                Section(header: Text("Есть ли какие-то конкретные условия или требования, которые вам важны при выборе страхового тарифа?").foregroundColor(.black).bold().foregroundColor(.black)) {
+                    TextField("Напишите", text: $insuranceRequirements)
+                }
+                Button(action: {
+                    withAnimation {
+                        self.showingResult = true
+                    }
+                }) {
+                    Text("ИИ Рекомендация")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(height: 50)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
+                .sheet(isPresented: $showingResult) {
+                    
+                    ResultView(resultText: generateResults())
+                }
+            }
+            .background(Color(.systemGroupedBackground)) //
+        }
+    }
+}
+    func generateResults() -> String {
+        return "Предлагаем вам идеальное страховое решение — Тумар, созданное с учетом ваших потребностей. Почему именно это предложение стоит рассмотреть? Во-первых, мы обеспечиваем полное покрытие неблагоприятных событий круглосуточно, включая щедрую оплату больничного листа. А ещё, у нас для вас специальный бонус — 10% на карту при оплате взноса, чтобы ваш выбор был ещё более привлекательным."
+    }
+    
+    
+    struct ResultView: View {
+        let resultText: String
+        @State private var animatedText = ""
+        @State private var showPaymentButton = false
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 20) {
+               
+                Text("Выбор полиса")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.top)
+
+                ScrollView {
+                    Text(animatedText)
+                        .font(.body)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .onAppear {
+                            animateText(resultText)
+                        }
+                }
+                .frame(maxHeight: .infinity)
+
+                VStack(spacing: 16) {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Я соглашаюсь на обработку персональных данных и условия страхового полиса")
+                            .font(.footnote)
+                    }
+                    
+                    if showPaymentButton {
+                        Button(action: {
+                        }) {
+                            Text("Оплатить страховку")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.green)
+                                .cornerRadius(10)
+                        }
+                    }
+                }
+                .padding(.bottom)
+
+            }
+            .padding()
+            .background(Color("BackgroundGray"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        
+                    }) {
+                        Image(systemName: "arrow.left")
+                    }
+                }
+            }
+        }
+
+        private func animateText(_ text: String) {
+            let words = text.split(separator: " ")
+            var currentText = ""
+
+            for (index, word) in words.enumerated() {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
+                    currentText += "\(word) "
+                    animatedText = currentText
+                    if index == words.count - 1 {
+                        self.showPaymentButton = true
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+    struct QuizView_Previews: PreviewProvider {
+        static var previews: some View {
+            QuizView()
+        }
+    }
+    
+    
+    struct ContentView_Previews: PreviewProvider {
+        static var previews: some View {
+            ContentView()
+        }
+    }
+    
+
