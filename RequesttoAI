@@ -1,0 +1,61 @@
+import Foundation
+import Alamofire
+
+class ChatGPTClient {
+    
+    let baseURL = "https://api.openai.com/v1"
+    let headers: HTTPHeaders = ["Authorization": "Bearer sk-TFKz0xTVw2yJ8lZh4KPOT3BlbkFJ8iwk3r3pzFVfSmXdpRss1   ",
+                                "Content-Type": "application/json"
+    ]
+    
+  func generateText(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
+        print("hello")
+        let parameters: [String: Any] = [
+            "model": "gpt-3.5-turbo",
+            "messages": [
+                        [
+                            "role": "user",
+                            "content": prompt
+                        ]
+                    ],
+            "temperature": 0.7
+        ]
+        AF.request(baseURL + "/chat/completions", method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
+            .validate()
+            .responseDecodable(of: ChatGPTResponse.self) { response in
+                switch response.result {
+                case .success(let chatGPTResponse):
+                    completion(.success(chatGPTResponse.choices[0].text))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+}
+
+struct ChatGPTResponse: Decodable {
+    let choices: [Choice]
+    
+    struct Choice: Decodable {
+        let text: String
+    }
+}
+
+import UIKit
+
+class ViewController: UIViewController {
+    
+    let chatGPTClient = ChatGPTClient()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        chatGPTClient.generateText(prompt: "Hello, how are you?") { result in switch result {
+            case .success(let text):
+                print(text)
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+}
